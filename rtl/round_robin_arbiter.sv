@@ -1,3 +1,4 @@
+// Code your design here
 module round_robin_arbiter #(
     parameter int NUM_REQUESTS = 4,
     parameter NUM_CLK_GRANT = 4
@@ -14,7 +15,7 @@ localparam CNT_WIDTH = $clog2(NUM_CLK_GRANT);
 logic [CNT_WIDTH-1:0] count;
 logic [CNT_WIDTH-1:0] next_count;
 
-always_ff begin 
+  always_ff@(posedge clk or posedge reset) begin 
     if (reset) begin
         current_state <= IDLE;
         count <= 0;
@@ -34,7 +35,7 @@ always_comb begin
         IDLE: begin
             if(!reset) begin 
                 // If you are out of reset , transition to next state
-                if(req[0] = 1'b1) begin
+              if(req[0] == 1'b1) begin
                     next_state = GNT_0;
                     grant[0] = 1'b1;
                     next_count = count + 1; // because we have given a grant already 
@@ -97,7 +98,7 @@ always_comb begin
                 end
                 else if (count == NUM_CLK_GRANT - 1) begin
                     next_count = 0;
-                    grant[1] == 1'b1;
+                    grant[1] = 1'b1;
                     next_state = req[2] ? GNT_2 : (req[3] ? GNT_3 : (req[0] ? GNT_0 : GNT_1));
                 end
             end
@@ -158,4 +159,3 @@ always_comb begin
 end
 
 endmodule
-
